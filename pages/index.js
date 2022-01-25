@@ -126,11 +126,14 @@ export default function PaginaInicial() {
               fullWidth
               textFieldColors={{
                 neutral: {
-                  textColor: appConfig.theme.colors.neutrals[200],
+                  textColor: appConfig.theme.colors.neutrals['000'],
                   mainColor: appConfig.theme.colors.neutrals[900],
                   mainColorHighlight: appConfig.theme.colors.primary[500],
                   backgroundColor: appConfig.theme.colors.neutrals[800],
                 },
+              }}
+              styleSheet={{
+                fontWeight: 'Bold'
               }}
             />
             <Button
