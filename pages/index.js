@@ -73,9 +73,8 @@ export default function PaginaInicial() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: appConfig.theme.colors.primary[500],
           backgroundImage:
-            "url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)",
+            "url(https://images.unsplash.com/photo-1524532787116-e70228437bbe?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=869&q=80)",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundBlendMode: "multiply",
@@ -120,7 +119,7 @@ export default function PaginaInicial() {
                 color: appConfig.theme.colors.neutrals[300],
               }}
             >
-              {appConfig.name}
+              {appConfig.name + ' ('+ username+')'}
             </Text>
 
             <TextField
@@ -138,6 +137,10 @@ export default function PaginaInicial() {
               type="submit"
               label="Entrar"
               fullWidth
+              styleSheet={{
+                color: appConfig.theme.colors.neutrals["700"],
+                fontWeight: '700'
+              }}
               buttonColors={{
                 contrastColor: appConfig.theme.colors.neutrals["000"],
                 mainColor: appConfig.theme.colors.primary[500],
@@ -168,16 +171,18 @@ export default function PaginaInicial() {
               styleSheet={{
                 borderRadius: "50%",
                 marginBottom: "16px",
+                boxShadow:' rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px'
               }}
               src={`https://github.com/${username}.png`}
             />
             <Text
               variant="body4"
               styleSheet={{
+                cursor: 'default',
                 color: appConfig.theme.colors.neutrals[200],
                 backgroundColor: appConfig.theme.colors.neutrals[900],
-                padding: "3px 10px",
-                borderRadius: "1000px",
+                padding: "6px 10px",
+                borderRadius: "5px",
               }}
             >
               {username}
