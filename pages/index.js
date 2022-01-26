@@ -1,37 +1,12 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
+import React from "react";
+import { useRouter } from "next/router";
+import { IoPeopleSharp } from "react-icons/io5";
+import { GoRepo } from "react-icons/go";
 
 import appConfig from "../config.json";
-
-function GlobalStyle() {
-  return (
-    <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: "Open Sans", sans-serif;
-      }
-      /* App fit Height */
-      html,
-      body,
-      #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */
-    `}</style>
-  );
-}
+import { FaBold } from "react-icons/fa";
+import { IconContext } from "react-icons/lib";
 
 function Title(props) {
   const Tag = props.tag || "h1";
@@ -52,27 +27,69 @@ function Title(props) {
   );
 }
 
-/* function HomePage() {
+function Informations() {
   return (
-    <>
-      <GlobalStyle />
-      <Title tag="h2">Welcome Back!</Title>
-      <h2>Discord - Alura Matrix</h2>
-    </>
+    <style jsx>
+      {`
+        div {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+        }
+      `}
+    </style>
   );
 }
- */
-export default function PaginaInicial() {
-  const username = "ErickBss";
 
+export default function PaginaInicial() {
+  const router = useRouter();
+  const [username, setUsername] = React.useState("ErickBss");
+  const [userfollowers, setFollowers] = React.useState("");
+  const [userep, setRep] = React.useState("");
+  const [userbio, setBio] = React.useState("");
+
+  const traficdata = fetch(`https://api.github.com/users/${username}`)
+    .then(function (response) {
+      return response.json(); //convert the http format for json
+    })
+    .then(function (jsonResponse) {
+      console.log(jsonResponse);
+      let followers = jsonResponse.followers;
+      let reps = jsonResponse.public_repos;
+      let bio = jsonResponse.bio;
+      setFollowers(followers);
+      setRep(reps);
+      setBio(bio);
+      return jsonResponse;
+    });
+
+  function IconFollowers() {
+    return (
+      <IconContext.Provider
+        value={{ style: { fontSize: "1rem", color: appConfig.theme.colors.neutrals[200] } }}
+      >
+        <IoPeopleSharp />
+      </IconContext.Provider>
+    );
+  }
+
+  function IconRepos() {
+    return (
+      <IconContext.Provider
+        value={{ style: { fontSize: "1rem", color: appConfig.theme.colors.neutrals[200] } }}
+      >
+        <GoRepo />
+      </IconContext.Provider>
+    );
+  }
   return (
     <>
-      <GlobalStyle />
       <Box
         styleSheet={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-start",
+          paddingLeft: "10%",
           backgroundImage:
             "url(https://images.unsplash.com/photo-1524532787116-e70228437bbe?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=869&q=80)",
           backgroundRepeat: "no-repeat",
@@ -101,6 +118,11 @@ export default function PaginaInicial() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              // render a new page
+              router.push("/chat");
+            }}
             styleSheet={{
               display: "flex",
               flexDirection: "column",
@@ -119,30 +141,39 @@ export default function PaginaInicial() {
                 color: appConfig.theme.colors.neutrals[300],
               }}
             >
-              {appConfig.name + ' ('+ username+')'}
+              {appConfig.name + " (" + username + ")"}
             </Text>
 
             <TextField
+              onChange={(e) => {
+                let minCharacters = e.target.value;
+                if (minCharacters.length > 2) {
+                  const newUser = e.target.value;
+                  setUsername(newUser);
+                }
+                console.log("not reached");
+              }}
               fullWidth
               textFieldColors={{
                 neutral: {
-                  textColor: appConfig.theme.colors.neutrals['000'],
+                  textColor: appConfig.theme.colors.neutrals["000"],
                   mainColor: appConfig.theme.colors.neutrals[900],
                   mainColorHighlight: appConfig.theme.colors.primary[500],
                   backgroundColor: appConfig.theme.colors.neutrals[800],
                 },
               }}
               styleSheet={{
-                fontWeight: 'Bold'
+                fontWeight: "Bold",
               }}
             />
+
             <Button
               type="submit"
               label="Entrar"
               fullWidth
               styleSheet={{
                 color: appConfig.theme.colors.neutrals["700"],
-                fontWeight: '700'
+                fontWeight: "700",
               }}
               buttonColors={{
                 contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -158,38 +189,112 @@ export default function PaginaInicial() {
           <Box
             styleSheet={{
               display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              maxWidth: "200px",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              maxWidth: "300px",
               padding: "16px",
               backgroundColor: appConfig.theme.colors.neutrals[800],
               border: "1px solid",
               borderColor: appConfig.theme.colors.neutrals[999],
               borderRadius: "10px",
               flex: 1,
-              minHeight: "240px",
+              maxHeight: "240px",
             }}
           >
             <Image
               styleSheet={{
+                maxWidth: "150px",
                 borderRadius: "50%",
-                marginBottom: "16px",
-                boxShadow:' rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px'
+                boxShadow:
+                  " rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
               }}
               src={`https://github.com/${username}.png`}
             />
-            <Text
-              variant="body4"
+            <Box
               styleSheet={{
-                cursor: 'default',
-                color: appConfig.theme.colors.neutrals[200],
-                backgroundColor: appConfig.theme.colors.neutrals[900],
-                padding: "6px 10px",
-                borderRadius: "5px",
+                height: "200px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
               }}
             >
-              {username}
-            </Text>
+              <Text
+                variant="body4"
+                styleSheet={{
+                  textAlign: "center",
+                  cursor: "default",
+                  backgroundColor: appConfig.theme.colors.neutrals[700],
+                  color: appConfig.theme.colors.neutrals[200],
+                  padding: "6px 10px",
+                  borderRadius: "5px",
+                }}
+              >
+                <h2>{username}</h2>
+              </Text>
+
+              <Text
+                variant="body4"
+                styleSheet={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  alignItems: "center",
+                  cursor: "default",
+                  color: appConfig.theme.colors.neutrals[200],
+                  backgroundColor: appConfig.theme.colors.neutrals[700],
+                  borderLeft: "8px solid #eee96e",
+                  padding: "3px 3px",
+                  borderRadius: "5px",
+                  marginLeft: "10%",
+                  fontWeight: "Bold",
+                  fontSize: "0.8rem",
+                }}
+              >
+                <IconFollowers />
+                <p>|</p>
+                {userfollowers}
+              </Text>
+              <Text
+                variant="body4"
+                styleSheet={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  alignItems: "center",
+                  cursor: "default",
+                  color: appConfig.theme.colors.neutrals[200],
+                  backgroundColor: appConfig.theme.colors.neutrals[700],
+                  borderLeft: "8px solid #eee96e",
+                  padding: "3px 3px",
+                  borderRadius: "5px",
+                  marginLeft: "10%",
+                  fontWeight: "Bold",
+                  fontSize: "0.8rem",
+                }}
+              >
+                <IconRepos />
+                <p>|</p>
+                {userep}
+              </Text>
+              <Text
+                variant="body4"
+                styleSheet={{
+                  display: "flex",
+                  justifyContent: "space-around",
+                  textAlign: "center",
+                  cursor: "default",
+                  color: appConfig.theme.colors.neutrals[200],
+                  backgroundColor: appConfig.theme.colors.neutrals[700],
+                  border: "2px solid #eee96e",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  marginLeft: "10%",
+                  fontWeight: "Bold",
+                  fontSize: "0.8rem",
+                }}
+              >
+                {userbio}
+              </Text>
+            </Box>
           </Box>
           {/* Photo Area */}
         </Box>
