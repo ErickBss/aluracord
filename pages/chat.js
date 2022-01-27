@@ -1,31 +1,77 @@
+// Sua lógica vai aqui
+/*  
+      -User text in the field
+      -Click on Enter to send
+      -the message has to be received for the other person
+
+      //Dev
+      [] OnChange and useState for the send
+      [] Messaages List
+  */
+// ./Sua lógica vai aqui
+
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import React from "react";
+import { GrClose } from "react-icons/gr";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/router";
+
 import appConfig from "../config.json";
+
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwMjkwOSwiZXhwIjoxOTU4ODc4OTA5fQ.kk5rMFsZWOwNaH4E2sOfRYa1qZBFnNjS2sc8nsUkCTs";
+const SUPABASE_URL = "https://clesufzjbejwnylajnyj.supabase.co";
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage() {
   const [message, setMessage] = React.useState("");
-  const [messagesList, setMesaagesList] = React.useState([]);
+  const [messagesList, setMessagesList] = React.useState([]);
+  const router = useRouter();
+  const username = router.query.username;
 
-  // Sua lógica vai aqui
-  /*  
-        -User text in the field
-        -Click on Enter to send
-        -the message has to be received for the outher person
+  React.useEffect(() => {
+    const db = supabaseClient
+      .from("messages")
+      .select("*")
+      .order("id", { ascending: false })
+      .then(({ data }) => {
+        console.log(data);
+        setMessagesList(data);
+      });
+  }, []);
 
-        //Dev
-        [] OnChange and useState for the send
-        [] Messaages List
-    */
-  // ./Sua lógica vai aqui
   function handleNewMessage(newMessage) {
-    const message = {
-      id: messagesList.length + 1,
-      from: "erick",
-      text: newMessage,
-    };
-    setMesaagesList([message, ...messagesList]);
-    setMessage("");
+ 
+        const message = {
+          id: messagesList[0].id + 1,
+          de: username,
+          texto: newMessage,
+        }
+        
+        console.log("Message:", message);
+        setMessage("");
+
+        supabaseClient
+          .from("messages")
+          .insert([message])
+          .then(({ data }) => {
+            setMessagesList([data[0], ...messagesList]);
+          });
   }
+
+  function handleTaskRemove(messageId) {
+    console.log(messageId);
+    const newMessagesList = messagesList.filter(
+      (message) => message.id !== messageId
+    );
+    setMessagesList(newMessagesList);
+    supabaseClient
+      .from("messages")
+      .delete()
+      .match({ id: messageId })
+      .then(() => {});
+  }
+
 
   return (
     <Box
@@ -33,8 +79,7 @@ export default function ChatPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: appConfig.theme.colors.primary[500],
-        backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)`,
+        backgroundImage: `url(https://images.unsplash.com/photo-1533681018184-68bd1d883b97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1031&q=80)`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         backgroundBlendMode: "multiply",
@@ -44,14 +89,16 @@ export default function ChatPage() {
       <Box
         styleSheet={{
           display: "flex",
+          justifyContent: "flex-start",
           flexDirection: "column",
           flex: 1,
           boxShadow: "0 2px 10px 0 rgb(0 0 0 / 20%)",
+          border: "2px solid #df1938 ",
           borderRadius: "5px",
-          backgroundColor: appConfig.theme.colors.neutrals[700],
+          backgroundColor: "rgba(17, 26, 23,0.7)",
           height: "100%",
-          maxWidth: "95%",
-          maxHeight: "95vh",
+          maxWidth: "70%",
+          maxHeight: "80vh",
           padding: "32px",
         }}
       >
@@ -62,13 +109,16 @@ export default function ChatPage() {
             display: "flex",
             flex: 1,
             height: "80%",
-            backgroundColor: appConfig.theme.colors.neutrals[600],
+            backgroundColor: "rgb(177, 179, 174)",
             flexDirection: "column",
             borderRadius: "5px",
             padding: "16px",
           }}
         >
-          <MessageList messages={messagesList} />
+          <MessageList
+            messages={messagesList}
+            handleTaskRemove={handleTaskRemove}
+          />
           {/*   {messagesList.map((actualMessage) => {
             return (
               <li key={actualMessage.id}>
@@ -104,29 +154,26 @@ export default function ChatPage() {
                 resize: "none",
                 borderRadius: "5px",
                 padding: "6px 8px",
-                backgroundColor: appConfig.theme.colors.neutrals[700],
+                backgroundColor: "rgb(17, 26, 23)",
                 marginRight: "12px",
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
             <Button
               onClick={() => {
-            
                 if (message.length > 0) {
                   handleNewMessage(message);
                 }
               }}
               label="Enviar"
-              colorVariant="neutral"
-              variant="primary"
               styleSheet={{
                 cursor: "pointer",
                 padding: "15px 30px",
                 marginBottom: "8px",
                 borderRadius: "7px",
-                backgroundColor: appConfig.theme.colors.neutrals[700],
-                color: appConfig.theme.colors.neutrals['200'],
-                fontWeight:'bold'
+                backgroundColor: "rgb(209, 17, 48)",
+                color: appConfig.theme.colors.neutrals["200"],
+                fontWeight: "bold",
               }}
             />
           </Box>
@@ -161,16 +208,16 @@ function Header() {
 }
 
 function MessageList(props) {
-  console.log(props);
   return (
     <Box
       tag="ul"
       styleSheet={{
-        overflow: "scroll",
+        overflowX: "hidden",
         display: "flex",
         flexDirection: "column-reverse",
         flex: 1,
-        color: appConfig.theme.colors.neutrals["000"],
+        color: appConfig.theme.colors.neutrals["700"],
+        fontWeight: "bold",
         marginBottom: "16px",
       }}
     >
@@ -183,8 +230,13 @@ function MessageList(props) {
               borderRadius: "5px",
               padding: "6px",
               marginBottom: "12px",
+              maxWidth: "100%",
+              transition: "0.3s",
+              fontWeight: "500",
               hover: {
+                fontWeight: "bold",
                 backgroundColor: appConfig.theme.colors.neutrals[700],
+                color: appConfig.theme.colors.neutrals["000"],
               },
             }}
           >
@@ -195,27 +247,48 @@ function MessageList(props) {
             >
               <Image
                 styleSheet={{
-                  width: "20px",
-                  height: "20px",
+                  transform: "translateY(6px)",
+                  width: "25px",
+                  height: "25px",
                   borderRadius: "50%",
                   display: "inline-block",
-                  marginRight: "8px",
+                  margin: "0 5px",
                 }}
-                src={`https://github.com/vanessametonini.png`}
+                src={`https://github.com/${message.de}.png`}
               />
-              <Text tag="strong">{message.from}</Text>
+              <Text
+                tag="strong"
+                styleSheet={{
+                  fontWeight: "600",
+                }}
+              >
+                {message.de}
+              </Text>
+
               <Text
                 styleSheet={{
                   fontSize: "10px",
                   marginLeft: "8px",
-                  color: appConfig.theme.colors.neutrals[300],
+                  color: "rgb(130, 142, 94)",
                 }}
                 tag="span"
               >
                 {new Date().toLocaleDateString()}
+                <GrClose
+                  style={{
+                    type: "button",
+                    cursor: "pointer",
+                    fontSize: "1.2rem",
+                    float: "right",
+                    margin: "10px 10px 0 0",
+                  }}
+                  onClick={() => {
+                    props.handleTaskRemove(message.id);
+                  }}
+                />
               </Text>
             </Box>
-            {message.text}
+            {message.texto}
           </Text>
         );
       })}

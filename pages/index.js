@@ -1,11 +1,11 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
 import React from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { IoPeopleSharp } from "react-icons/io5";
 import { GoRepo } from "react-icons/go";
 
 import appConfig from "../config.json";
-import { FaBold } from "react-icons/fa";
 import { IconContext } from "react-icons/lib";
 
 function Title(props) {
@@ -27,7 +27,7 @@ function Title(props) {
   );
 }
 
-function Informations() {
+function Information() {
   return (
     <style jsx>
       {`
@@ -66,7 +66,12 @@ export default function PaginaInicial() {
   function IconFollowers() {
     return (
       <IconContext.Provider
-        value={{ style: { fontSize: "1rem", color: appConfig.theme.colors.neutrals[200] } }}
+        value={{
+          style: {
+            fontSize: "1rem",
+            color: appConfig.theme.colors.neutrals[200],
+          },
+        }}
       >
         <IoPeopleSharp />
       </IconContext.Provider>
@@ -76,7 +81,12 @@ export default function PaginaInicial() {
   function IconRepos() {
     return (
       <IconContext.Provider
-        value={{ style: { fontSize: "1rem", color: appConfig.theme.colors.neutrals[200] } }}
+        value={{
+          style: {
+            fontSize: "1rem",
+            color: appConfig.theme.colors.neutrals[200],
+          },
+        }}
       >
         <GoRepo />
       </IconContext.Provider>
@@ -121,7 +131,7 @@ export default function PaginaInicial() {
             onSubmit={(e) => {
               e.preventDefault();
               // render a new page
-              router.push("/chat");
+              /*  router.push("/chat"); */
             }}
             styleSheet={{
               display: "flex",
@@ -166,22 +176,26 @@ export default function PaginaInicial() {
                 fontWeight: "Bold",
               }}
             />
-
-            <Button
-              type="submit"
-              label="Entrar"
-              fullWidth
-              styleSheet={{
-                color: appConfig.theme.colors.neutrals["700"],
-                fontWeight: "700",
-              }}
-              buttonColors={{
-                contrastColor: appConfig.theme.colors.neutrals["000"],
-                mainColor: appConfig.theme.colors.primary[500],
-                mainColorLight: appConfig.theme.colors.primary[400],
-                mainColorStrong: appConfig.theme.colors.primary[600],
-              }}
-            />
+            <Link href={{
+              pathname:'/chat',
+              query: {username:`${username}`}
+            }}>
+              <Button
+                type="submit"
+                label="Entrar"
+                fullWidth
+                styleSheet={{
+                  color: appConfig.theme.colors.neutrals["700"],
+                  fontWeight: "700",
+                }}
+                buttonColors={{
+                  contrastColor: appConfig.theme.colors.neutrals["000"],
+                  mainColor: appConfig.theme.colors.primary[500],
+                  mainColorLight: appConfig.theme.colors.primary[400],
+                  mainColorStrong: appConfig.theme.colors.primary[600],
+                }}
+              />
+            </Link>
           </Box>
           {/* Formulário */}
 
