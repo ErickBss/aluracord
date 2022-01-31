@@ -57,7 +57,7 @@ export default function PaginaInicial() {
       let followers = jsonResponse.followers;
       let reps = jsonResponse.public_repos;
       let bio = jsonResponse.bio;
-      setFollowers(followers);
+      setFolloweers(followers);
       setRep(reps);
       setBio(bio);
       return jsonResponse;

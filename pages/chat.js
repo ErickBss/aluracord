@@ -15,6 +15,7 @@ import React from "react";
 import { GrClose } from "react-icons/gr";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
+import ReactLoading from "react-loading";
 
 import appConfig from "../config.json";
 
@@ -26,37 +27,39 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 export default function ChatPage() {
   const [message, setMessage] = React.useState("");
   const [messagesList, setMessagesList] = React.useState([]);
+  // above is the state for check the render of API
+  const [render, setRenderStatus] = React.useState(undefined);
   const router = useRouter();
   const username = router.query.username;
 
   React.useEffect(() => {
-    const db = supabaseClient
+    supabaseClient
       .from("messages")
       .select("*")
       .order("id", { ascending: false })
       .then(({ data }) => {
         console.log(data);
         setMessagesList(data);
+        setRenderStatus(true);
       });
   }, []);
 
   function handleNewMessage(newMessage) {
- 
-        const message = {
-          id: messagesList[0].id + 1,
-          de: username,
-          texto: newMessage,
-        }
-        
-        console.log("Message:", message);
-        setMessage("");
+    const message = {
+      id: messagesList[0].id + 1,
+      de: username,
+      texto: newMessage,
+    };
 
-        supabaseClient
-          .from("messages")
-          .insert([message])
-          .then(({ data }) => {
-            setMessagesList([data[0], ...messagesList]);
-          });
+    console.log("Message Id:", message).id;
+    setMessage("");
+
+    supabaseClient
+      .from("messages")
+      .insert([message])
+      .then(({ data }) => {
+        setMessagesList([data[0], ...messagesList]);
+      });
   }
 
   function handleTaskRemove(messageId) {
@@ -65,121 +68,143 @@ export default function ChatPage() {
       (message) => message.id !== messageId
     );
     setMessagesList(newMessagesList);
-    supabaseClient
-      .from("messages")
-      .delete()
-      .match({ id: messageId })
-      .then(() => {});
+    supabaseClient.from("messages").delete().match({ id: messageId });
   }
 
-
   return (
-    <Box
-      styleSheet={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundImage: `url(https://images.unsplash.com/photo-1533681018184-68bd1d883b97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1031&q=80)`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-        backgroundBlendMode: "multiply",
-        color: appConfig.theme.colors.neutrals["000"],
-      }}
-    >
-      <Box
-        styleSheet={{
-          display: "flex",
-          justifyContent: "flex-start",
-          flexDirection: "column",
-          flex: 1,
-          boxShadow: "0 2px 10px 0 rgb(0 0 0 / 20%)",
-          border: "2px solid #df1938 ",
-          borderRadius: "5px",
-          backgroundColor: "rgba(17, 26, 23,0.7)",
-          height: "100%",
-          maxWidth: "70%",
-          maxHeight: "80vh",
-          padding: "32px",
-        }}
-      >
-        <Header />
+    <>
+      {!render ? (
         <Box
           styleSheet={{
-            position: "relative",
             display: "flex",
-            flex: 1,
-            height: "80%",
-            backgroundColor: "rgb(177, 179, 174)",
-            flexDirection: "column",
-            borderRadius: "5px",
-            padding: "16px",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundImage: `url(https://images.unsplash.com/photo-1533681018184-68bd1d883b97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1031&q=80)`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundBlendMode: "multiply",
+            color: appConfig.theme.colors.neutrals["000"],
+            filter: "blur(5px)",
+            webkitFilter: "blur(5px)",
+          }}
+        ></Box>
+      ) : (
+        <Box
+          styleSheet={{
+            transition: "1s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundImage: `url(https://images.unsplash.com/photo-1533681018184-68bd1d883b97?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1031&q=80)`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundBlendMode: "multiply",
+            color: appConfig.theme.colors.neutrals["000"],
           }}
         >
-          <MessageList
-            messages={messagesList}
-            handleTaskRemove={handleTaskRemove}
-          />
-          {/*   {messagesList.map((actualMessage) => {
+          <Box
+            styleSheet={{
+              transition: "1s",
+              display: "flex",
+              justifyContent: "flex-start",
+              flexDirection: "column",
+              flex: 1,
+              boxShadow: "0 2px 10px 0 rgb(0 0 0 / 20%)",
+              border: "3px solid #df1938 ",
+              borderRadius: "10px",
+              backgroundColor: "rgba(17, 26, 23,0.7)",
+              height: "100%",
+              maxWidth: "70%",
+              maxHeight: "80vh",
+              padding: "32px",
+            }}
+          >
+            <Header />
+            <Box
+              styleSheet={{
+                position: "relative",
+                display: "flex",
+                flex: 1,
+                height: "80%",
+                backgroundColor: "rgb(177, 179, 174)",
+                flexDirection: "column",
+                borderRadius: "5px",
+                padding: "16px",
+              }}
+            >
+              <MessageList
+                messages={messagesList}
+                handleTaskRemove={handleTaskRemove}
+              />
+              {/*   {messagesList.map((actualMessage) => {
             return (
               <li key={actualMessage.id}>
                 {actualMessage.from} : {actualMessage.text}
               </li>
             );
           })} */}
-          <Box
-            as="form"
-            styleSheet={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <TextField
-              value={message}
-              onChange={(e) => {
-                let newMessage = e.target.value;
-                setMessage(newMessage);
-              }}
-              /* find which key the user clicked */
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleNewMessage(message);
-                }
-              }}
-              placeholder="Insira sua mensagem aqui..."
-              type="textarea"
-              styleSheet={{
-                width: "100%",
-                border: "0",
-                resize: "none",
-                borderRadius: "5px",
-                padding: "6px 8px",
-                backgroundColor: "rgb(17, 26, 23)",
-                marginRight: "12px",
-                color: appConfig.theme.colors.neutrals[200],
-              }}
-            />
-            <Button
-              onClick={() => {
-                if (message.length > 0) {
-                  handleNewMessage(message);
-                }
-              }}
-              label="Enviar"
-              styleSheet={{
-                cursor: "pointer",
-                padding: "15px 30px",
-                marginBottom: "8px",
-                borderRadius: "7px",
-                backgroundColor: "rgb(209, 17, 48)",
-                color: appConfig.theme.colors.neutrals["200"],
-                fontWeight: "bold",
-              }}
-            />
+              <Box
+                as="form"
+                styleSheet={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <TextField
+                  value={message}
+                  onChange={(e) => {
+                    let newMessage = e.target.value;
+                    setMessage(newMessage);
+                  }}
+                  /* find which key the user clicked */
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleNewMessage(message);
+                    }
+                  }}
+                  placeholder="Insira sua mensagem aqui..."
+                  type="textarea"
+                  styleSheet={{
+                    width: "100%",
+                    border: "0",
+                    resize: "none",
+                    borderRadius: "5px",
+                    padding: "6px 8px",
+                    backgroundColor: "rgb(17, 26, 23)",
+                    marginRight: "12px",
+                    color: appConfig.theme.colors.neutrals[200],
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    if (message.length > 0) {
+                      handleNewMessage(message);
+                    }
+                  }}
+                  label="Enviar"
+                  styleSheet={{
+                    cursor: "pointer",
+                    padding: "15px 30px",
+                    marginBottom: "8px",
+                    borderRadius: "7px",
+                    backgroundColor: "rgb(209, 17, 48)",
+                    color: appConfig.theme.colors.neutrals["200"],
+                    fontWeight: "bold",
+                    transition: "0.5s",
+                    hover: {
+                      backgroundColor: "rgb(209, 17, 48)",
+                      border: "none",
+                      padding: "15px 35px",
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
           </Box>
         </Box>
-      </Box>
-    </Box>
+      )}
+    </>
   );
 }
 
