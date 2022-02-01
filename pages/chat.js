@@ -45,13 +45,15 @@ export default function ChatPage() {
   }, []);
 
   function handleNewMessage(newMessage) {
+   let id = messagesList[0].id + 1;
+   console.log('Id:',id);
     const message = {
-      id: messagesList[0].id + 1,
+      id: id ,
       de: username,
       texto: newMessage,
     };
 
-    console.log("Message Id:", message).id;
+    console.log("Message Id:", message);
     setMessage("");
 
     supabaseClient
@@ -62,13 +64,18 @@ export default function ChatPage() {
       });
   }
 
-  function handleTaskRemove(messageId) {
+  const  handleTaskRemove=  async (messageId) => {
     console.log(messageId);
-    const newMessagesList = messagesList.filter(
-      (message) => message.id !== messageId
-    );
-    setMessagesList(newMessagesList);
-    supabaseClient.from("messages").delete().match({ id: messageId });
+    try{
+      await supabaseClient.from("messages").delete().match({ id: messageId });
+      const newMessagesList = messagesList.filter(
+        (message) => message.id !== messageId
+      );
+      setMessagesList(newMessagesList);
+
+    }catch(error){
+      console.log(error);
+    }
   }
 
   return (
